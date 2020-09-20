@@ -1,6 +1,18 @@
 import dash_core_components as dcc
 import dash_html_components as html
 
+import os
+import yaml
+# import pyodbc
+import pandas as pd
+
+# retrieve app params from yml file
+## grab same path as py script
+relative_path = os.path.realpath(
+    os.path.join(os.getcwd(), os.path.dirname(__file__))
+)
+with open(os.path.join(relative_path, "{path_prefix}config.yml".format(path_prefix='../')), "r") as yml_file:
+    app_config = yaml.load(stream=yml_file, Loader=yaml.FullLoader)
 
 class gui_comp_slider_cls():
     def __init__(self, comp_name_str: str,
@@ -152,3 +164,15 @@ def dcc_slider_wrapper(obj: gui_comp_slider_cls):
         slider_step=obj.slider_step,
         slider_updatemode=obj.slider_updatemode
     )
+
+if __name__ == '__main__':
+    values = []
+    [values.append(os.environ[value]) for yml_prop,value in app_config['db_config'].items()]
+    
+    print('ms sql env var values: {values}'.format(values=values))
+    # file_name = '_tmp_test_import.csv'
+
+    # df = pd.read_csv(file_name)
+    # server = app_config['db_config']['host']
+    # # database = 
+    # sql_conn = pyodbc.connect('{db_cn_str}'.format(db_cn_str=db_cn_str))

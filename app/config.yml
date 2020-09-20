@@ -6,3 +6,8 @@ dash_config:
     threads: 10
     port: 8080
     host: "0.0.0.0" # '127.0.0.1' for DEV, '0.0.0.0' for PRD
+db_config:
+    user: 'db_user'
+    password: 'db_password'
+    port: 'db_port'
+    host: 'db_host'

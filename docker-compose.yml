@@ -1,0 +1,20 @@
+version: "3.8"
+services: 
+    sql-server-db:
+        container_name: sql-server-db-test
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        ports: 
+            - "1433:1433"
+        env_file: 
+            - ./dev_mssql.env
+    dash-app:
+        build: .
+        env_file: 
+            - ./dev_app_env_var.env
+        ports:
+            - "8080:8080"
+        volumes: 
+            - ./ :/dash_app
+        working_dir: /dash_app/app
+        tty: true
+        stdin_open: true

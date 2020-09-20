@@ -1,4 +1,5 @@
 pyyaml
+pyodbc
 numpy
 pandas
 scikit-learn
