@@ -2,8 +2,9 @@ import dash_core_components as dcc
 import dash_html_components as html
 
 import os
+import time
 import yaml
-# import pyodbc
+import pyodbc
 import pandas as pd
 
 # retrieve app params from yml file
@@ -166,13 +167,54 @@ def dcc_slider_wrapper(obj: gui_comp_slider_cls):
     )
 
 if __name__ == '__main__':
-    values = []
-    [values.append(os.environ[value]) for yml_prop,value in app_config['db_config'].items()]
-    
-    print('ms sql env var values: {values}'.format(values=values))
-    # file_name = '_tmp_test_import.csv'
+    try:
+        def get_db_value(env_var: str):
+            return os.environ[app_config['db_config'][env_var]]
 
-    # df = pd.read_csv(file_name)
-    # server = app_config['db_config']['host']
-    # # database = 
-    # sql_conn = pyodbc.connect('{db_cn_str}'.format(db_cn_str=db_cn_str))
+        values = list([[yml_prop,os.environ[value]] for yml_prop,value in app_config['db_config'].items()])
+
+        # for yml_prop,value in values:
+        #     print('env var name: {name}, value: {value}'.format(name=yml_prop,value=value))
+
+        # print('ms sql env var values: {values}'.format(values=values))
+        
+        relative_path = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+        file_name = '{relative_path}/_tmp_test_import.csv'.format(relative_path=relative_path)
+        df = pd.read_csv(file_name)
+
+        driver, server, username, password, port = [
+            get_db_value(value) for value in ['driver','server','username','password','port']
+        ]
+        cn_str = 'DRIVER={driver};SERVER={server};UID={username};PWD={password}'.format(
+                driver='{'+driver+'}',
+                server=server,
+                username=username,
+                password=password
+            )
+        cnxn = pyodbc.connect(cn_str)
+        
+        cursor = cnxn.cursor()
+        cursor.execute('DROP TABLE IF EXISTS test_table')
+        cursor.execute('''
+            create table test_table(
+                type nvarchar(100) NOT NULL,
+                ref_name nvarchar(100) NOT NULL
+            )
+        ''')
+        cursor.commit()
+        # insert dataframe into SQL Server:
+        for index, row in df.iterrows():
+            cursor.execute(
+                "INSERT INTO test_table (type,ref_name) values(?,?)", row.type, row.ref_name
+            )
+
+        cursor.execute('SELECT @@VERSION as [SQL SERVER VERSION DETAILS]')
+        for row in cursor:
+            print('MS SQL Server Version: \n{version}'.format(version=row))
+
+        cnxn.commit()
+        cursor.close()
+        print('Seeded dev db from python script')
+
+    except:
+        print('***Error: Attempted to seed the dev database but something went wrong.***')

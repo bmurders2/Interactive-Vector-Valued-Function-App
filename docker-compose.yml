@@ -3,12 +3,16 @@ services:
     sql-server-db:
         container_name: sql-server-db-test
         image: mcr.microsoft.com/mssql/server:2019-latest
+        volumes: 
+            - mssql_dv:/data/db
         ports: 
             - "1433:1433"
         env_file: 
             - ./dev_mssql.env
     dash-app:
-        build: .
+        build:
+            context: ./
+            dockerfile: Dockerfile
         env_file: 
             - ./dev_app_env_var.env
         ports:
@@ -18,3 +22,16 @@ services:
         working_dir: /dash_app/app
         tty: true
         stdin_open: true
+        command: >
+            sh -c "
+            true_compare=true &&
+            if [ "$dev_container" = "$true_compare" ]; then 
+            echo 'Using dev configuration: attempting to seed the db for development...';
+            echo 'Waiting 10 seconds for the dev db to finish starting...';
+            sleep 10; 
+            python helpers/gui_setup.py; else
+            echo 'Using non-dev configuration: database was not seeded for development'; fi &&
+            tail -f /dev/null"
+    
+volumes: 
+    mssql_dv:
