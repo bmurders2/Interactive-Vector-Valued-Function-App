@@ -1,20 +1,19 @@
 import os
 import yaml
 from waitress import serve
+
+# import app
 from dash_app import flask_app as app
 
-# retrieve app params from yml file
-## grab same path as py script
-relative_path = os.path.realpath(
-    os.path.join(os.getcwd(), os.path.dirname(__file__))
-)
-with open(os.path.join(relative_path, "config.yml"), "r") as yml_file:
-    app_config = yaml.load(stream=yml_file, Loader=yaml.FullLoader)
+# custom import(s)
+from helpers.app_config import app_config_cls
+
+app_config = app_config_cls()
 
 # serve app
 serve(
-    app, 
-    host=app_config['dash_config']['host'],
-    threads=app_config['dash_config']['threads'],
-    port=app_config['dash_config']['port']
+    app,
+    host=app_config.dash_config.host,
+    threads=app_config.dash_config.threads,
+    port=app_config.dash_config.port
 )

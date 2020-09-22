@@ -1,0 +1,17 @@
+# Dash app config params
+dash_config:    
+    routes_pathname_prefix: /
+    # if directly fronting with a reverse-proxy, add path below
+    requests_pathname_prefix: /
+    threads: 10
+    port: 8080
+    host: "0.0.0.0" # '127.0.0.1' for DEV, '0.0.0.0' for PRD
+# db app config params
+db_config:
+    # values are env variable references
+    username: 'db_username'
+    password: 'db_password'
+    port: 'db_port'
+    server: 'db_server'
+    driver: 'db_driver'
+    database: 'db_database'

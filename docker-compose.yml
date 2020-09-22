@@ -5,23 +5,29 @@ services:
         image: mcr.microsoft.com/mssql/server:2019-latest
         volumes: 
             - mssql_dv:/data/db
+        # keeping port open for dev from outside of container
         ports: 
             - "1433:1433"
+        # load environment variables defined by dev env file
         env_file: 
             - ./dev_mssql.env
     dash-app:
         build:
             context: ./
             dockerfile: Dockerfile
+        # load environment variables defined by dev env file
         env_file: 
             - ./dev_app_env_var.env
         ports:
             - "8080:8080"
+        # bind mount for development
         volumes: 
             - ./ :/dash_app
         working_dir: /dash_app/app
         tty: true
         stdin_open: true
+        # auto seed dev db with data
+        # this output can be discovered from the Docker logs of the container
         command: >
             sh -c "
             true_compare=true &&
@@ -29,9 +35,10 @@ services:
             echo 'Using dev configuration: attempting to seed the db for development...';
             echo 'Waiting 10 seconds for the dev db to finish starting...';
             sleep 10; 
-            python helpers/gui_setup.py; else
+            python helpers/seed_db.py; else
             echo 'Using non-dev configuration: database was not seeded for development'; fi &&
             tail -f /dev/null"
-    
+
+# dev db volume
 volumes: 
     mssql_dv:

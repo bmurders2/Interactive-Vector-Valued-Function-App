@@ -8,25 +8,19 @@ import yaml
 import numpy as np
 import pandas as pd
 
-# custom imports
+# custom import(s)
 import helpers.gui_setup as gui_setup
 from helpers.prediction_fn import prediction_func
-
-# retrieve app params from yml file
-## grab same path as py script
-relative_path = os.path.realpath(
-    os.path.join(os.getcwd(), os.path.dirname(__file__))
-)
-with open(os.path.join(relative_path, "config.yml"), "r") as yml_file:
-    app_config = yaml.load(stream=yml_file, Loader=yaml.FullLoader)
+from helpers.app_config import app_config_cls
 
 # initialize gui helper class
 gui_params = gui_setup.gui_params_cls()
+app_config = app_config_cls()
 
 app = dash.Dash(__name__)
 app.config.update({
-    'routes_pathname_prefix': app_config['dash_config']['routes_pathname_prefix'],
-    'requests_pathname_prefix': app_config['dash_config']['requests_pathname_prefix']
+    'routes_pathname_prefix': app_config.dash_config.routes_pathname_prefix, #app_config['dash_config']['routes_pathname_prefix'],
+    'requests_pathname_prefix': app_config.dash_config.requests_pathname_prefix #app_config['dash_config']['requests_pathname_prefix']
 })
 # serve as Flask app
 flask_app = app.server
@@ -160,6 +154,6 @@ def update_graph(random_sample_size, svr_c, svr_epsilon, actual_func_k, actual_f
 if __name__ == '__main__':
     app.run_server(
         debug=True,
-        port=app_config['dash_config']['port'],
-        host=app_config['dash_config']['host']
+        port=app_config.dash_config.port,
+        host=app_config.dash_config.host
     )

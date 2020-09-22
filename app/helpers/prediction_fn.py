@@ -100,3 +100,6 @@ def prediction_func(
         a = y, indices = total_support_vector_indices)
     )
     return df
+
+if __name__ == '__main__':
+    pass
