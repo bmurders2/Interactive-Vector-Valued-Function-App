@@ -12,18 +12,19 @@ create schema dash_app
 
 create table slider_data
 (
-    slider_id varchar not null primary key,
+    row_id int identity(1,1) primary key,
+    slider_id nvarchar(100) not null unique,
     slider_min float null,
     slider_max float null,
     slider_value float null,
     slider_step float null,
-    tab_name_override_str varchar null
+    tab_name_override_str nvarchar(100) null
 )
 
 create table slider_marks
 (
     row_id int identity(1,1) primary key,
-    slider_id varchar not null foreign key references slider_data(slider_id),
+    slider_id nvarchar(100) not null,
     mark_value float not null
 );
 go

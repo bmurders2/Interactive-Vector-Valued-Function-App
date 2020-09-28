@@ -25,7 +25,7 @@ done
 
 
 echo "Using dev configuration: attempting to seed the db for development..."
-echo "Waiting ${sleep_timer} seconds for the dev db to finish starting..."
+echo "Waiting ${sleep_timer} second(s) for the dev db to finish starting..."
 sleep $sleep_timer
 
 # loop through sql file list and execute them via sqlcmd

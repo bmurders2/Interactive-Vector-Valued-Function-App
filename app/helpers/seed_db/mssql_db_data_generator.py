@@ -5,6 +5,7 @@ import os
 import sys
 import yaml
 import pyodbc
+import numpy as np
 import pandas as pd
 
 
@@ -113,96 +114,82 @@ def get_default_gui_cls_values(use_SQL_method: bool = False):
 
     return var
 
-# if __name__ == '__main__':
-#     db_data_seed = get_default_gui_cls_values()
-#     def get_db_value(env_var: str):
-#         return os.environ[app_config.db_config.__getattribute__(env_var)]
-    
-#     relative_path = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-#     var = db_data_seed.c
-#     df = pd.DataFrame( 
-#         [value for value, str_value  in var.slider_marks.items()],columns={var.comp_name}
-#     )
-#     print(df.head(10))
-
-#     driver, server, username, password, port = [
-#         get_db_value(value) for value in ['driver','server','username','password','port']
-#     ]
-#     cn_str = 'DRIVER={driver};SERVER={server};UID={username};PWD={password}'.format(
-#             driver='{'+driver+'}',
-#             server=server,
-#             username=username,
-#             password=password
-#         )
-#     cnxn = pyodbc.connect(cn_str)
-    
-#     cursor = cnxn.cursor()
-#     for index, row in df.iterrows():
-#         cursor.execute(
-#             "INSERT INTO {table_name} (slider_id,mark_value) values(?,?)".format(table_name=app_config.table_name), row.svr_c, row.mark_value
-#         )
-#     cursor.commit()
-#     # insert dataframe into SQL Server:
-#     for index, row in df.iterrows():
-#         cursor.execute(
-#             "INSERT INTO test_table (type,ref_name) values(?,?)", row.type, row.ref_name
-#         )
-
-#     cursor.execute('SELECT @@VERSION as [SQL SERVER VERSION DETAILS]')
-#     for row in cursor:
-#         print('MS SQL Server Version: \n{version}'.format(version=row))
-
-#     cnxn.commit()
-#     cursor.close()
-#     print('Seeded dev db from python script')
-
-    # except:
-    #     print('***Error: Attempted to seed the dev database but something went wrong.***')
-
-
 if __name__ == '__main__':
-    try:        
-        def get_db_value(env_var: str):
-            return os.environ[app_config.db_config.__getattribute__(env_var)]
-        
-        relative_path = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-        file_name = '{relative_path}/_tmp_test_import.csv'.format(relative_path=relative_path)
-        df = pd.read_csv(file_name)
+    def get_db_value(env_var: str):
+        return os.environ[app_config.db_config.__getattribute__(env_var)]
+    
+    def insert_into_table_str(db_name, db_schema, db_table, db_columns, db_value_list):
+        return "INSERT INTO {db_name}.{db_schema}.{table_name} {table_columns} {values}".format(
+            db_name=db_name,
+            db_schema=db_schema,
+            table_name=db_table,
+            table_columns=db_columns,
+            values=db_value_list
+        )
+
+    try:
+        db_name, db_schema, db_tbl_slider_data, db_tbl_slider_marks = [os.environ[value] for value in [
+            'db_database','db_schema','db_tbl_slider_data','db_tbl_slider_marks']
+        ]
 
         driver, server, username, password, port = [
             get_db_value(value) for value in ['driver','server','username','password','port']
         ]
+        
+        db_data_seed = get_default_gui_cls_values().tab_params_list
+        # relative_path = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+
         cn_str = 'DRIVER={driver};SERVER={server};UID={username};PWD={password}'.format(
                 driver='{'+driver+'}',
                 server=server,
                 username=username,
                 password=password
-            )
+        )
         cnxn = pyodbc.connect(cn_str)
-        
-        cursor = cnxn.cursor()
-        cursor.execute('DROP TABLE IF EXISTS test_table')
-        cursor.execute('''
-            create table test_table(
-                type nvarchar(100) NOT NULL,
-                ref_name nvarchar(100) NOT NULL
+
+        for gui_element in db_data_seed:
+
+            df_slider_marks = pd.DataFrame( 
+                [value for value, str_value  in gui_element.slider_marks.items()],columns={gui_element.comp_name}
             )
-        ''')
-        cursor.commit()
-        # insert dataframe into SQL Server:
-        for index, row in df.iterrows():
+    
+            cursor = cnxn.cursor()
+
+            # fill slider table
             cursor.execute(
-                "INSERT INTO test_table (type,ref_name) values(?,?)", row.type, row.ref_name
+                insert_into_table_str(
+                    db_name=db_name,
+                    db_schema=db_schema, 
+                    db_table=db_tbl_slider_data,
+                    db_columns='(slider_id,slider_min,slider_max,slider_value,slider_step,tab_name_override_str)',
+                    db_value_list='values (?,?,?,?,?,?)'
+                ),
+                str(gui_element.comp_name),
+                float(gui_element.slider_min),
+                float(gui_element.slider_max),
+                float(gui_element.slider_value),
+                float(gui_element.slider_step),
+                str(gui_element.tab_title)
             )
 
-        cursor.execute('SELECT @@VERSION as [SQL SERVER VERSION DETAILS]')
-        for row in cursor:
-            print('MS SQL Server Version: \n{version}'.format(version=row))
+            # fill slider marks table
+            for index, row in df_slider_marks.iterrows():
+                cursor.execute(
+                    insert_into_table_str(
+                        db_name=db_name,
+                        db_schema=db_schema,
+                        db_table=db_tbl_slider_marks,
+                        db_columns='(slider_id,mark_value)',
+                        db_value_list='values (?,?)'
+                    ),
+                    str(gui_element.comp_name), 
+                    float(row.values)
+                )
 
+        # save changes
         cnxn.commit()
         cursor.close()
-        print('Seeded dev db from python script')
+        print('Seeded dev database from python script')
 
     except:
         print('***Error: Attempted to seed the dev database but something went wrong.***')
-
