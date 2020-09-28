@@ -1,12 +1,22 @@
 import dash_core_components as dcc
 import dash_html_components as html
 
-import os
-import time
-import yaml
-import pyodbc
-import pandas as pd
 
+def dcc_slider_values(tab_label: str, div_id: str, slider_id: str, slider_min, slider_max, slider_marks, slider_value, slider_step,
+                      slider_updatemode: str, div_style={'margin-top': 20}, make_slider_vertical: bool = False):
+    return dcc.Tab(label=tab_label, children=[
+        html.Div(id=div_id, style=div_style),
+        dcc.Slider(
+            id=slider_id,
+            min=slider_min,
+            max=slider_max,
+            marks=slider_marks,
+            value=slider_value,
+            step=slider_step,
+            updatemode=slider_updatemode,
+            vertical=make_slider_vertical
+        )
+    ])
 
 class gui_comp_slider_cls():
     def __init__(self, comp_name_str: str,
@@ -31,92 +41,23 @@ class gui_comp_slider_cls():
         self.slider_step = slider_step
         self.slider_updatemode = slider_updatemode
 
-
 class gui_params_cls():
-    def __init__(self):
-        self.graph_container_id = 'main_plot_container_id'
+    def __init__(self, c: gui_comp_slider_cls=None, epsilon: gui_comp_slider_cls=None, random_sample_size: gui_comp_slider_cls=None, actual_func_k: gui_comp_slider_cls=None, actual_func_alpha: gui_comp_slider_cls=None,
+                 noise_offset: gui_comp_slider_cls=None, noise_scale: gui_comp_slider_cls=None, shuffle_data: gui_comp_slider_cls=None, graph_container_id: str = 'main_plot_container_id', use_SQL_method: bool = True):
 
-        self.c = gui_comp_slider_cls(
-            comp_name_str='svr_c',
-            slider_min=100,
-            slider_max=100000,
-            slider_marks={
-                i*10000: '{num}'.format(num=i*10000) for i in range(11)
-            },
-            slider_value=5000,
-            slider_step=100,
-            tab_name_override_str='SVR Model Parameter: Regularization'
-        )
-        self.epsilon = gui_comp_slider_cls(
-            comp_name_str='svr_epsilon',
-            slider_min=0.1,
-            slider_max=10,
-            slider_marks={
-                i: '{num}'.format(num=i) for i in range(11)
-            },
-            slider_value=0.3,
-            slider_step=.1,
-            tab_name_override_str='SVR Model Parameter: Training Loss No-Penalty Range'
-        )
-        self.random_sample_size = gui_comp_slider_cls(
-            comp_name_str='svr_random_sample_size',
-            slider_min=25,
-            slider_max=500,
-            slider_marks={
-                i*25: '{num}'.format(num=i*25) for i in range(21)
-            },
-            slider_value=250,
-            slider_step=25,
-            tab_name_override_str='Random Sample Size'
-        )
-        self.actual_func_k = gui_comp_slider_cls(
-            comp_name_str='predict_func_k',
-            slider_min=0.01,
-            slider_max=0.50,
-            slider_marks={
-                i/20: '{num}'.format(num=i/20) for i in range(21)
-            },
-            slider_value=0.25,
-            slider_step=0.01,
-            tab_name_override_str='Actual Function Parameter: k'
-        )
-        self.actual_func_alpha = gui_comp_slider_cls(
-            comp_name_str='predict_func_alpha',
-            slider_min=-3,
-            slider_max=3,
-            slider_marks={
-                value: '{num}'.format(num=value) for value in [
-                    -3, -2, -1, 0, 1, 2, 3
-                ]
-            },
-            slider_value=1.0,
-            slider_step=0.01,
-            tab_name_override_str='Actual Function Parameter: alpha'
-        )
-        self.noise_offset = gui_comp_slider_cls(
-            comp_name_str='noise_offset',
-            slider_min=0.01,
-            slider_max=10,
-            slider_marks={
-                i: '{num}'.format(num=i) for i in range(11)
-            },
-            slider_value=0.50,
-            slider_step=0.01,
-            tab_name_override_str='Obvservations Data: Noise Deviation Addition'
-        )
-        self.noise_scale = gui_comp_slider_cls(
-            comp_name_str='noise_scale',
-            slider_min=0.01,
-            slider_max=10,
-            slider_marks={
-                i: '{num}'.format(num=i) for i in range(11)
-            },
-            slider_value=2.00,
-            slider_step=0.01,
-            tab_name_override_str='Obvservations Data: Noise Deviation Magnitude'
-        )
-        self.shuffle_data = gui_comp_slider_cls(
-            'shuffle_data', tab_name_override_str='Use Fixed Random Seed for Data:')
+        if use_SQL_method == False:
+            self.graph_container_id = graph_container_id
+
+            self.c = c
+            self.epsilon = epsilon
+            self.random_sample_size = random_sample_size
+            self.actual_func_k = actual_func_k
+            self.actual_func_alpha = actual_func_alpha
+            self.noise_offset = noise_offset
+            self.noise_scale = noise_scale
+            self.shuffle_data = shuffle_data
+        else:
+            self.query_db()
 
         self.tab_params_list = [
             self.random_sample_size,
@@ -128,36 +69,22 @@ class gui_params_cls():
             self.noise_scale
         ]
 
+    def query_db(self):
+        print('made it here')
 
-def dcc_slider_values(tab_label: str, div_id: str, slider_id: str, slider_min, slider_max, slider_marks, slider_value, slider_step,
-                      slider_updatemode: str, div_style={'margin-top': 20}, make_slider_vertical: bool = False):
-    return dcc.Tab(label=tab_label, children=[
-        html.Div(id=div_id, style=div_style),
-        dcc.Slider(
-            id=slider_id,
-            min=slider_min,
-            max=slider_max,
-            marks=slider_marks,
-            value=slider_value,
-            step=slider_step,
-            updatemode=slider_updatemode,
-            vertical=make_slider_vertical
+    def get_dcc_slider(self, gui_slider_comp: gui_comp_slider_cls):
+        obj = gui_slider_comp
+        return dcc_slider_values(
+            tab_label=obj.tab_title,
+            div_id=obj.container_id_str,
+            slider_id=obj.slider_id_str,
+            slider_min=obj.slider_min,
+            slider_max=obj.slider_max,
+            slider_marks=obj.slider_marks,
+            slider_value=obj.slider_value,
+            slider_step=obj.slider_step,
+            slider_updatemode=obj.slider_updatemode
         )
-    ])
-
-
-def dcc_slider_wrapper(obj: gui_comp_slider_cls):
-    return dcc_slider_values(
-        tab_label=obj.tab_title,
-        div_id=obj.container_id_str,
-        slider_id=obj.slider_id_str,
-        slider_min=obj.slider_min,
-        slider_max=obj.slider_max,
-        slider_marks=obj.slider_marks,
-        slider_value=obj.slider_value,
-        slider_step=obj.slider_step,
-        slider_updatemode=obj.slider_updatemode
-    )
 
 if __name__ == '__main__':
     pass

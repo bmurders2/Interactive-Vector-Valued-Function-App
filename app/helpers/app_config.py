@@ -42,7 +42,9 @@ class db_config_cls():
                  port: str = app_config[db_config_str]['port'],
                  server: str = app_config[db_config_str]['server'],
                  driver: str = app_config[db_config_str]['driver'],
-                 database: str = app_config[db_config_str]['database']
+                 database: str = app_config[db_config_str]['database'],
+                 tbl_slider_data: str = app_config[db_config_str]['tbl_slider_data'],
+                 tbl_slider_marks: str = app_config[db_config_str]['tbl_slider_marks']
                  ):
         self.username = username
         self.password = password
@@ -50,6 +52,8 @@ class db_config_cls():
         self.server = server
         self.driver = driver
         self.database = database
+        self.tbl_slider_data = tbl_slider_data
+        self.tbl_slider_marks = tbl_slider_marks
 
 class app_config_cls():
     def __init__(self, config_file_name: str = config_file_name, config_file_dir_path: str = relative_path):

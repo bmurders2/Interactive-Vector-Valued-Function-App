@@ -8,13 +8,15 @@ import yaml
 import numpy as np
 import pandas as pd
 
+
 # custom import(s)
 import helpers.gui_setup as gui_setup
+from helpers.seed_db.mssql_db_data_generator import get_default_gui_cls_values
 from helpers.prediction_fn import prediction_func
 from helpers.app_config import app_config_cls
 
 # initialize gui helper class
-gui_params = gui_setup.gui_params_cls()
+gui_params = get_default_gui_cls_values()
 app_config = app_config_cls()
 
 app = dash.Dash(__name__)
@@ -60,7 +62,8 @@ app.layout = html.Div([
         # return array of interactive sliders as a tab list (horizontal)
         html.Div(
             dcc.Tabs(vertical=False, children=[
-                gui_setup.dcc_slider_wrapper(obj) for obj in gui_params.tab_params_list
+                gui_params.get_dcc_slider(obj) for obj in gui_params.tab_params_list
+                # gui_setup.dcc_slider_wrapper(obj) for obj in gui_params.tab_params_list
             ]),
         ),
     ])

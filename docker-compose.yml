@@ -17,7 +17,7 @@ services:
             dockerfile: Dockerfile
         # load environment variables defined by dev env file
         env_file: 
-            - ./dev_app_env_var.env
+            - ./dev_app_env_vars.env
         ports:
             - "8080:8080"
         # bind mount for development
@@ -30,12 +30,8 @@ services:
         # this output can be discovered from the Docker logs of the container
         command: >
             sh -c "
-            true_compare=true &&
-            if [ "$dev_container" = "$true_compare" ]; then 
-            echo 'Using dev configuration: attempting to seed the db for development...';
-            echo 'Waiting 10 seconds for the dev db to finish starting...';
-            sleep 10; 
-            python helpers/seed_db.py; else
+            if [ "$dev_container" = "$TRUE_COMPARE" ]; then 
+            bash helpers/seed_db/mssql_db_seed_script.sh; else
             echo 'Using non-dev configuration: database was not seeded for development'; fi &&
             tail -f /dev/null"
 
