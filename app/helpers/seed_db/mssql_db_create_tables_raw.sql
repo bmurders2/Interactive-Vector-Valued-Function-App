@@ -4,11 +4,21 @@ go
 drop schema if exists dash_app;
 go
 
+drop table if exists dash_app.other_params;
 drop table if exists dash_app.slider_data;
 drop table if exists dash_app.slider_marks;
 go
 
 create schema dash_app
+
+create table other_params
+(
+    row_id int identity(1,1) primary key,
+    param_name nvarchar(100) not null,
+    comp_id_str nvarchar(100) not null,
+    value_str nvarchar(100) not null,
+    additional_value_str nvarchar(100) null
+)
 
 create table slider_data
 (

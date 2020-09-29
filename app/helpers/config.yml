@@ -15,5 +15,7 @@ db_config:
     server: 'db_server'
     driver: 'db_driver'
     database: 'db_database'
+    schema: 'db_schema'
     tbl_slider_data: 'db_tbl_slider_data'
     tbl_slider_marks: 'db_tbl_slider_marks'
+    tbl_other_params: 'db_tbl_other_params'

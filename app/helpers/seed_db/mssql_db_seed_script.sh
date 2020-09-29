@@ -11,8 +11,6 @@ sql_file_args=(
     $db_tbl_slider_marks
     $db_schema
 )
-# sleep timer -- for waiting on ms sql server to startup
-sleep_timer=10
 
 # condense ms sql query statements for sqlcmd
 mssql_cmds_str="$mssql_cmd -S $db_server -U $db_username -P $db_password"
@@ -23,7 +21,6 @@ for sql_file_arg in "${sql_file_args[@]}"; do
     sql_file_args_str+="${sql_file_arg}=\$${sql_file_arg} "
 done
 
-
 echo "Using dev configuration: attempting to seed the db for development..."
 echo "Waiting ${sleep_timer} second(s) for the dev db to finish starting..."
 sleep $sleep_timer
@@ -32,5 +29,3 @@ sleep $sleep_timer
 for sql_file in "${sql_files[@]}"; do
     $mssql_cmds_str -v $sql_file_args_str -i "${mssql_seed_db_dir}/${sql_file}"
 done
-
-python "${mssql_seed_db_dir}/${mssql_db_data_generator_file_name}"

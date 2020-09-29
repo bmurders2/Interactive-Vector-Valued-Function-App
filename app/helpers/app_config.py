@@ -7,6 +7,9 @@ import pyodbc
 def get_cls_attributes(cls_obj):
     return (lambda obj_cls: obj_cls.__dict__, cls_obj())[1].__dict__
 
+def get_env_var_value(env_var: str):
+    return os.environ[env_var]
+
 # read yml file contents
 def read_yml_file(config_file_path, config_file_name):
     with open(os.path.join(config_file_path, config_file_name), "r") as yml_file:
@@ -43,8 +46,10 @@ class db_config_cls():
                  server: str = app_config[db_config_str]['server'],
                  driver: str = app_config[db_config_str]['driver'],
                  database: str = app_config[db_config_str]['database'],
+                 schema: str = app_config[db_config_str]['schema'],
                  tbl_slider_data: str = app_config[db_config_str]['tbl_slider_data'],
-                 tbl_slider_marks: str = app_config[db_config_str]['tbl_slider_marks']
+                 tbl_slider_marks: str = app_config[db_config_str]['tbl_slider_marks'],
+                 tbl_other_params: str = app_config[db_config_str]['tbl_other_params']
                  ):
         self.username = username
         self.password = password
@@ -52,8 +57,26 @@ class db_config_cls():
         self.server = server
         self.driver = driver
         self.database = database
+        self.schema = schema
         self.tbl_slider_data = tbl_slider_data
         self.tbl_slider_marks = tbl_slider_marks
+        self.tbl_other_params = tbl_other_params
+
+        self.params_list = [
+            self.username,
+            self.password,
+            self.port,
+            self.server,
+            self.driver,
+            self.database,
+            self.schema,
+            self.tbl_slider_data,
+            self.tbl_slider_marks,
+            self.tbl_other_params
+        ]
+    
+    def get_db_params(self):
+        return [get_env_var_value(db_value) for db_value in self.params_list]
 
 class app_config_cls():
     def __init__(self, config_file_name: str = config_file_name, config_file_dir_path: str = relative_path):
@@ -66,6 +89,9 @@ class app_config_cls():
 
         self.dash_config = dash_config_cls()
         self.db_config = db_config_cls()
+    
+    def get_env_var_value(self, value: str):
+        return get_env_var_value(value)
         
 class dynamic_attr_class(object):
     def __init__(self, **kwargs):

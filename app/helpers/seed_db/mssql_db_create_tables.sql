@@ -4,11 +4,21 @@ go
 drop schema if exists $(db_schema);
 go
 
+drop table if exists $(db_schema).$(db_tbl_other_params);
 drop table if exists $(db_schema).$(db_tbl_slider_marks);
 drop table if exists $(db_schema).$(db_tbl_slider_data);
 go
 
 create schema $(db_schema)
+
+create table $(db_tbl_other_params)
+(
+    row_id int identity(1,1) primary key,
+    param_name nvarchar(100) not null,
+    comp_id_str nvarchar(100) not null,
+    value_str nvarchar(100) not null,
+    additional_value_str nvarchar(100) null
+)
 
 create table $(db_tbl_slider_data)
 (

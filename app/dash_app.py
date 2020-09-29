@@ -10,19 +10,21 @@ import pandas as pd
 
 
 # custom import(s)
+
 import helpers.gui_setup as gui_setup
 from helpers.seed_db.mssql_db_data_generator import get_default_gui_cls_values
 from helpers.prediction_fn import prediction_func
 from helpers.app_config import app_config_cls
 
 # initialize gui helper class
-gui_params = get_default_gui_cls_values()
 app_config = app_config_cls()
+gui_params = gui_setup.gui_params_cls(use_SQL_method=True)
+
 
 app = dash.Dash(__name__)
 app.config.update({
-    'routes_pathname_prefix': app_config.dash_config.routes_pathname_prefix, #app_config['dash_config']['routes_pathname_prefix'],
-    'requests_pathname_prefix': app_config.dash_config.requests_pathname_prefix #app_config['dash_config']['requests_pathname_prefix']
+    'routes_pathname_prefix': app_config.dash_config.routes_pathname_prefix,
+    'requests_pathname_prefix': app_config.dash_config.requests_pathname_prefix
 })
 # serve as Flask app
 flask_app = app.server
@@ -40,21 +42,21 @@ app.layout = html.Div([
     html.Div([
         # plot
         html.Div(
-            html.Div(id=gui_params.graph_container_id),
+            html.Div(id=gui_params.graph_container_id.comp_id_str),
         ),
         # determine if data should be random or fixed with a seed
         html.Div([
             html.Div(
-                html.P(gui_params.shuffle_data.tab_title),
+                html.P(gui_params.shuffle_data.additional_value_str),
                 style={'display': 'inline-block'}
             ),
             html.Div(
                 dcc.RadioItems(
-                    id=gui_params.shuffle_data.container_id_str,
+                    id=gui_params.shuffle_data.comp_id_str,
                     options=[
                         {'label': 'True', 'value': 'True'},
                         {'label': 'False', 'value': 'False'}
-                    ], value='False'
+                    ], value=gui_params.shuffle_data.value_str #'False'
                 ),
                 style={'display': 'inline-block'}
             ),
@@ -87,10 +89,10 @@ def slider_strs_update(random_sample_size, svr_c, svr_epsilon, actual_func_k, ac
 
 # update plot
 @app.callback(
-    Output(gui_params.graph_container_id, 'children'),
+    Output(gui_params.graph_container_id.comp_id_str, 'children'),
     (
         [Input(obj.slider_id_str, 'value') for obj in gui_params.tab_params_list] +
-        [Input(gui_params.shuffle_data.container_id_str, 'value')]
+        [Input(gui_params.shuffle_data.comp_id_str, 'value')]
     )
 )
 def update_graph(random_sample_size, svr_c, svr_epsilon, actual_func_k, actual_func_alpha, noise_offset, noise_scale, shuffle_data):

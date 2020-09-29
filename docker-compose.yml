@@ -31,7 +31,7 @@ services:
         command: >
             sh -c "
             if [ "$dev_container" = "$TRUE_COMPARE" ]; then 
-            bash helpers/seed_db/mssql_db_seed_script.sh; else
+            python helpers/seed_db/mssql_db_data_generator.py; else
             echo 'Using non-dev configuration: database was not seeded for development'; fi &&
             tail -f /dev/null"
 
