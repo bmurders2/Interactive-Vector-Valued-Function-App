@@ -5,17 +5,20 @@ services:
         image: mcr.microsoft.com/mssql/server:2019-latest
         volumes: 
             - mssql_dv:/data/db
-        # keeping port open for dev from outside of container
+        # keeping port open for DEV from outside of container
         ports: 
             - "1433:1433"
-        # load environment variables defined by dev env file
+        # load environment variables defined by DEV env file
+        # expectation is that this is a DEV instance of a
+        #       MS SQL Server for development exclusively
+        # if for PRD, the PID can go into the called env file
         env_file: 
             - ./dev_mssql.env
     dash-app:
         build:
             context: ./
             dockerfile: Dockerfile
-        # load environment variables defined by dev env file
+        # load environment variables defined by DEV env file
         env_file: 
             - ./dev_app_env_vars.env
         ports:
@@ -35,6 +38,6 @@ services:
             echo 'Using non-dev configuration: database was not seeded for development'; fi &&
             tail -f /dev/null"
 
-# dev db volume
+# DEV db volume
 volumes: 
     mssql_dv:
