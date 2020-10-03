@@ -1,10 +1,11 @@
 #!/bin/bash
 
+# **order matters here**
 sql_files=(
     $mssql_create_db_file_name
     $mssql_create_tbls_file_name
 )
-# **order matters here
+
 sql_file_args=(
     $db_database
     $db_tbl_slider_data
