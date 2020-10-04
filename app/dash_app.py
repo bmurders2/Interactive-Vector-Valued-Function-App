@@ -3,14 +3,11 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 
-import os
-import yaml
 import numpy as np
 import pandas as pd
 
 
 # custom import(s)
-
 import helpers.gui_setup as gui_setup
 from helpers.seed_db.mssql_db_data_generator import get_default_gui_cls_values
 from helpers.prediction_fn import prediction_func
@@ -20,13 +17,13 @@ from helpers.app_config import app_config_cls
 app_config = app_config_cls()
 gui_params = gui_setup.gui_params_cls(use_SQL_method=True)
 
-
+# dash app config
 app = dash.Dash(__name__)
 app.config.update({
     'routes_pathname_prefix': app_config.dash_config.routes_pathname_prefix,
     'requests_pathname_prefix': app_config.dash_config.requests_pathname_prefix
 })
-# serve as Flask app
+# for serving as Flask app
 flask_app = app.server
 
 # app layout

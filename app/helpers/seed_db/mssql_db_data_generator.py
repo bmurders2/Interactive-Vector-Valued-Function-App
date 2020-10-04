@@ -1,14 +1,9 @@
 import os
 import sys
-import yaml
 import pyodbc
 import subprocess
 import numpy as np
 import pandas as pd
-
-import dash_core_components as dcc
-import dash_html_components as html
-
 
 if __name__ == '__main__':
     sys.path.insert(0,os.environ['app_working_dir'])
@@ -218,7 +213,7 @@ if __name__ == '__main__':
         # save changes
         cnxn.commit()
         cursor.close()
-        print('Seeded dev database from python script')
+        print('***Seeded dev database from python script***')
 
     except:
         print('***Error: Attempted to seed the dev database but something went wrong.***')

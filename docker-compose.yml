@@ -29,7 +29,7 @@ services:
         working_dir: /dash_app/app
         tty: true
         stdin_open: true
-        # auto seed dev db with data
+        # auto seed DEV db with data
         # this output can be discovered from the Docker logs of the container
         command: >
             sh -c "

@@ -2,12 +2,7 @@ import os
 import yaml
 import pyodbc
 
-# retrieve a class attributes without having to instantiate an assignment variable
-# ***not used***
-def get_cls_attributes(cls_obj):
-    return (lambda obj_cls: obj_cls.__dict__, cls_obj())[1].__dict__
-
-def get_env_var_value(env_var: str):
+def get_env_var_value_fn(env_var: str):
     return os.environ[env_var]
 
 # read yml file contents
@@ -76,7 +71,7 @@ class db_config_cls():
         ]
     
     def get_db_params(self):
-        return [get_env_var_value(db_value) for db_value in self.params_list]
+        return [get_env_var_value_fn(db_value) for db_value in self.params_list]
 
 class app_config_cls():
     def __init__(self, config_file_name: str = config_file_name, config_file_dir_path: str = relative_path):
@@ -91,12 +86,18 @@ class app_config_cls():
         self.db_config = db_config_cls()
     
     def get_env_var_value(self, value: str):
-        return get_env_var_value(value)
+        return get_env_var_value_fn(value)
         
 class dynamic_attr_class(object):
     def __init__(self, **kwargs):
         for attr_name, value in kwargs.items():
             self.__dict__[attr_name] = value
+
+# retrieve a class attributes without having to instantiate an assignment variable
+# ***not used***
+def get_cls_attributes(cls_obj):
+    return (lambda obj_cls: obj_cls.__dict__, cls_obj())[1].__dict__
+
 
 if __name__ == '__main__':
     pass

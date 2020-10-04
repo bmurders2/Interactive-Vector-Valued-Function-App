@@ -23,7 +23,6 @@ for sql_file_arg in "${sql_file_args[@]}"; do
 done
 
 echo "***Using dev configuration***"
-# echo "Attempting to scaffold the dev db..."
 echo "***Waiting ${dev_db_seed_initial_wait} second(s) before attempting to scaffold the dev db***"
 sleep $dev_db_seed_initial_wait
 echo "Attempting to scaffold the dev db..."
@@ -32,8 +31,8 @@ echo "Attempting to scaffold the dev db..."
 attempt=0
 until [ $attempt -ge $dev_db_seed_max_attempt ] ; do
     # loop through sql file list and execute them via sqlcmd
-    # if failure, move to next pause process
-    # if success, print message and break from loop
+    # -- if failure, move to next pause process and retry
+    # -- if success, print message and break from loop
     for sql_file in "${sql_files[@]}"; do
         $mssql_cmds_str -v $sql_file_args_str -i "${mssql_seed_db_dir}/${sql_file}"
     done && echo "***Success: scaffolded dev db via SQL file(s)***" && break

@@ -1,5 +1,3 @@
-import os
-import yaml
 from waitress import serve
 
 # import app

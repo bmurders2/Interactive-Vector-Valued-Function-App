@@ -1,6 +1,5 @@
 import os
 import sys
-import yaml
 import pyodbc
 import numpy as np
 import pandas as pd
@@ -148,12 +147,14 @@ class gui_params_cls():
 
         username, password, port, server, driver, db_name, db_schema, db_tbl_slider_data, db_tbl_slider_marks, db_tbl_other_params = app_config.db_config.get_db_params()
 
+        # db column references and post-FROM SQL syntax
+        # slider table
         tbl_slider_data_columns = 'slider_id, slider_min, slider_max, slider_value, slider_step, tab_name_override_str'
         tbl_slider_data_post_syntax = 'order by slider_id asc, slider_min, slider_max, slider_value, slider_step, tab_name_override_str'
-
+        # slider marks table
         tbl_slider_marks_columns = 'slider_id, mark_value'
         tbl_slider_marks_post_syntax = 'order by slider_id asc, mark_value asc'
-
+        # other params table
         tbl_other_params_columns = 'param_name, comp_id_str, value_str, additional_value_str'
         tbl_other_params_post_syntax = 'order by param_name asc, comp_id_str asc, value_str asc, additional_value_str asc'
 
