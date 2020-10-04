@@ -9,7 +9,6 @@ import pandas as pd
 
 # custom import(s)
 import helpers.gui_setup as gui_setup
-from helpers.seed_db.mssql_db_data_generator import get_default_gui_cls_values
 from helpers.prediction_fn import prediction_func
 from helpers.app_config import app_config_cls
 
