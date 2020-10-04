@@ -22,11 +22,23 @@ for sql_file_arg in "${sql_file_args[@]}"; do
     sql_file_args_str+="${sql_file_arg}=\$${sql_file_arg} "
 done
 
-echo "Using dev configuration: attempting to seed the db for development..."
-echo "Waiting ${sleep_timer} second(s) for the dev db to finish starting..."
-sleep $sleep_timer
+echo "***Using dev configuration***"
+# echo "Attempting to scaffold the dev db..."
+echo "***Waiting ${dev_db_seed_initial_wait} second(s) before attempting to scaffold the dev db***"
+sleep $dev_db_seed_initial_wait
+echo "Attempting to scaffold the dev db..."
 
-# loop through sql file list and execute them via sqlcmd
-for sql_file in "${sql_files[@]}"; do
-    $mssql_cmds_str -v $sql_file_args_str -i "${mssql_seed_db_dir}/${sql_file}"
+# scaffold/prep the dev db for prd-like env
+attempt=0
+until [ $attempt -ge $dev_db_seed_max_attempt ] ; do
+    # loop through sql file list and execute them via sqlcmd
+    # if failure, move to next pause process
+    # if success, print message and break from loop
+    for sql_file in "${sql_files[@]}"; do
+        $mssql_cmds_str -v $sql_file_args_str -i "${mssql_seed_db_dir}/${sql_file}"
+    done && echo "***Success: scaffolded dev db via SQL file(s)***" && break
+
+    echo "***Waiting ${dev_db_seed_attempt_sleep_timer} seconds before new attempt to scaffold the dev db***"
+    attempt=$((attempt+1))
+    sleep $dev_db_seed_attempt_sleep_timer
 done
