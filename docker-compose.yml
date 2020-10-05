@@ -25,8 +25,8 @@ services:
             - "8080:8080"
         # bind mount for development
         volumes: 
-            - ./ :/dash_app
-        working_dir: /dash_app/app
+            - ./ :/project_code
+        working_dir: /project_code/app
         tty: true
         stdin_open: true
         # auto seed DEV db with data

@@ -1,2 +1,6 @@
-**/seed_db
+**/.git
+**/.cache
 **/__pycache__
+
+**/*.env
+**/seed_db

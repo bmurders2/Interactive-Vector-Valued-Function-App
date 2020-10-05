@@ -1,8 +1,7 @@
 FROM python:3.8.6-slim
-COPY ./app/requirements.txt /data/
-COPY ./app /dash_app
+COPY ./app /project_code/app/
 
-WORKDIR /dash_app
+WORKDIR /project_code/app
 
 
 # update and install app deps before moving forward
@@ -14,7 +13,7 @@ RUN apt-get update
 RUN ACCEPT_EULA=Y apt-get install msodbcsql17 -y
 RUN ACCEPT_EULA=Y apt-get install mssql-tools
 RUN /usr/local/bin/python -m pip install --upgrade pip
-RUN pip install -r /data/requirements.txt
+RUN pip install -r /project_code/app/requirements.txt
 
 # # for PRD
 # # *** Add a new user here with user id 1xxx with limited access and then proceed 
