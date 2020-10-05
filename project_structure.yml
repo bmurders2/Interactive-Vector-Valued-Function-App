@@ -1,0 +1,23 @@
+# files are listed before folders for readability
+- project-code
+    - .dockerignore             // prevent copying specific folder(s) or file(s)
+    - dev_app_env_vars.env      // env file for the main app
+    - dev_mssql.env             // env file for the MS SQL Server container
+    - docker-compose.yml        // Docker Compose file for project
+    - Dockerfile                // Dockerfile for app
+    - app
+        - dash_app_server.py    // for serving the app
+        - dash_app.py           // the actual main app
+        - requirements.txt      // holding the Python package requirements list
+        - helpers
+            - __init__.py
+            - app_config.py       // Python interface to env variable values
+            - config.yml          // env variable name references and config values for the dash app
+            - gui_setup.py        // managing the GUI params and dependencies
+            - prediction_fn.py    // returns the prediction results -- returned values are used for plotting
+            - seed_db
+                - __init__.py
+                - mssql_db_create_database.sql  // create the database -- called by the .sh file
+                - mssql_db_create_tables.sql    // create the tables -- called by the .sh file
+                - mssql_db_data_generator.py    // initiate scaffolding and seeding of the dev db
+                - mssql_db_seed_script.sh       // scaffold the dev db -- called by the generator .py file
